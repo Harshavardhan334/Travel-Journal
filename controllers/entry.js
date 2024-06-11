@@ -4,7 +4,7 @@ const User = require('../models/user');
 
 async function handleCreateEntry(req, res) {
     const body = req.body;
-    if (!body.username || !body.title || !body.location || !body.date) {
+    if (!body.username || !body.title || !body.location || !body.date || !body.text) {
         return res.status(400).json({ error: 'Full information is required' });
     }
     const shortId = shortid();
@@ -106,10 +106,11 @@ async function handleGetEntry(req, res) {
         }
         let entry = await Entry.findOne({ author: user._id, title });
 
-        if (!entry) {
-            return res.status(404).json({ error: 'Entry not found' });
-        }
+    
         if (entry) {
+
+            entry.viewHistory.push({ timestamp: Date.now() });
+
             res.status(200).json(entry);
         } else {
             res.status(404).json({ status: 'not found' });

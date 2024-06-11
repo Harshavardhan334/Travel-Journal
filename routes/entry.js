@@ -12,7 +12,8 @@ const router = express.Router();
 router.post("/", handleCreateEntry);
 router.patch("/", handleUpdateEntry);
 router.delete("/", handleDeleteEntry);
-// router.get("/Entry", handleGetEntry);  Think of proper path
-router.get("/", handleGetEntries);
+router.get("/", handleGetEntry);  
+
+router.get("/all", handleGetEntries); //Think of proper path
 
 module.exports=router;  

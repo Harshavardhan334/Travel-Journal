@@ -3,12 +3,17 @@ const User = require('../models/user');
 
 async function handleCreateUser(req, res) {
     const { username, email, password, profilePicture } = req.body;
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: "Please enter the required information" });
+    }
+
     try {
         let user = await User.findOne({username});
 
         if (user) {
             return res.status(409).json({
-                message: "Username already used"
+                message: "Username already used",
+                user
             })
         }
 
@@ -16,23 +21,24 @@ async function handleCreateUser(req, res) {
 
         if (user) {
             return res.status(409).json({
-                message: "Email already used"
+                message: "Email already used",
+                user
             })
         }
 
         const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(req.body.password, salt);
+        const hash = bcrypt.hashSync(password, salt);
 
         user = await User.create({
             username,
             email,
-            hash,
+            password: hash,
             profilePicture,
             entries: []
         })
 
         await user.save();
-        res.status(200).json({ messsage: "User has been created" });
+        res.status(200).json({ message: "User has been created" });
 
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -88,7 +94,7 @@ async function handleUpdateUser(req, res) {
 async function handleViewUser(req, res) {
     const { username } = req.body;
     try {
-        let user = User.findOne({ username });
+        let user = await User.findOne({ username });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
